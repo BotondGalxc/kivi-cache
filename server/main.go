@@ -16,6 +16,7 @@ type cacheServer struct {
 }
 
 func (server *cacheServer) Get(ctx context.Context, in *cache.GetRequest) (*cache.KeyValue, error) {
+	log.Printf("Received request for value %s", in.Key)
 	return &cache.KeyValue{Key: in.Key, Value: "Hello World!"}, nil
 }
 
