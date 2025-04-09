@@ -13,15 +13,27 @@ const port = ":5001"
 
 type cacheServer struct {
 	cache.UnimplementedKiviCacheServiceServer
+	values map[string]string
 }
 
-func (server *cacheServer) Get(ctx context.Context, in *cache.GetRequest) (*cache.KeyValue, error) {
-	log.Printf("Received request for value %s", in.Key)
-	return &cache.KeyValue{Key: in.Key, Value: "Hello World!"}, nil
+func NewCacheServer() *cacheServer {
+	server := cacheServer{}
+	server.values = make(map[string]string)
+	return &server
 }
 
-func (server *cacheServer) Put(ctx context.Context, in *cache.KeyValue) (*cache.PutResponse, error) {
-	return &cache.PutResponse{Result: "all good!", Error: ""}, nil
+func (server *cacheServer) Get(ctx context.Context, request *cache.GetRequest) (*cache.KeyValue, error) {
+
+	log.Printf("Received request for value %s", request.Key)
+
+	value := server.values[request.Key]
+
+	return &cache.KeyValue{Key: request.Key, Value: value}, nil
+}
+
+func (server *cacheServer) Put(ctx context.Context, request *cache.KeyValue) (*cache.PutResponse, error) {
+	server.values[request.Key] = request.Value
+	return &cache.PutResponse{Result: "Value Stored for Key " + request.Key, Error: ""}, nil
 }
 
 func main() {
@@ -31,7 +43,7 @@ func main() {
 	}
 
 	grpcSrv := grpc.NewServer()
-	cache.RegisterKiviCacheServiceServer(grpcSrv, &cacheServer{})
+	cache.RegisterKiviCacheServiceServer(grpcSrv, NewCacheServer())
 	log.Printf("gRPC server listening at %v", listener.Addr())
 
 	if err := grpcSrv.Serve(listener); err != nil {
