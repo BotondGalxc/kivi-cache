@@ -22,7 +22,11 @@ func (server *cacheServer) Get(ctx context.Context, request *cache.GetRequest) (
 
 	log.Printf("Received request for value %s", request.Key)
 
-	value := server.values[request.Key]
+	value, ok := server.values[request.Key]
+	if !ok {
+		errMessage := "The key " + request.Key + " does not exist"
+		return nil, errors.New(errMessage)
+	}
 
 	return &cache.KeyValue{Key: request.Key, Value: value}, nil
 }
@@ -30,12 +34,12 @@ func (server *cacheServer) Get(ctx context.Context, request *cache.GetRequest) (
 func (server *cacheServer) Put(ctx context.Context, request *cache.KeyValue) (*cache.PutResponse, error) {
 	if request.Key == "" {
 		errMessage := "Won't store value without key"
-		return &cache.PutResponse{Result: "", Error: errMessage}, errors.New(errMessage)
+		return nil, errors.New(errMessage)
 	}
 
 	if request.Value == "" {
 		errMessage := "Won't store empty value."
-		return &cache.PutResponse{Result: "", Error: errMessage}, errors.New(errMessage)
+		return nil, errors.New(errMessage)
 	}
 
 	server.values[request.Key] = request.Value

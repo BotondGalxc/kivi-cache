@@ -46,4 +46,15 @@ func TestCacheServer(t *testing.T) {
 		}
 	})
 
+	t.Run("get error on receiving nonexistent key", func(t *testing.T) {
+		srv := NewCacheServer()
+		key := "test"
+
+		_, err := srv.Get(context.Background(), &cache.GetRequest{Key: key})
+
+		if err == nil {
+			t.Errorf("want err not to be nil")
+		}
+	})
+
 }
