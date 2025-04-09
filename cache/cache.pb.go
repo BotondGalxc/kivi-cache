@@ -182,9 +182,9 @@ const file_cache_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value\";\n" +
 	"\vPutResponse\x12\x16\n" +
 	"\x06result\x18\x01 \x01(\tR\x06result\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error2j\n" +
-	"\x10KiviCacheService\x12)\n" +
-	"\x03Put\x12\x0f.cache.KeyValue\x1a\x0f.cache.KeyValue\"\x00\x12+\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error2m\n" +
+	"\x10KiviCacheService\x12,\n" +
+	"\x03Put\x12\x0f.cache.KeyValue\x1a\x12.cache.PutResponse\"\x00\x12+\n" +
 	"\x03Get\x12\x11.cache.GetRequest\x1a\x0f.cache.KeyValue\"\x00B\x11Z\x0fkivicache/cacheb\x06proto3"
 
 var (
@@ -208,7 +208,7 @@ var file_cache_proto_goTypes = []any{
 var file_cache_proto_depIdxs = []int32{
 	1, // 0: cache.KiviCacheService.Put:input_type -> cache.KeyValue
 	0, // 1: cache.KiviCacheService.Get:input_type -> cache.GetRequest
-	1, // 2: cache.KiviCacheService.Put:output_type -> cache.KeyValue
+	2, // 2: cache.KiviCacheService.Put:output_type -> cache.PutResponse
 	1, // 3: cache.KiviCacheService.Get:output_type -> cache.KeyValue
 	2, // [2:4] is the sub-list for method output_type
 	0, // [0:2] is the sub-list for method input_type

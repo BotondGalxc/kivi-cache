@@ -27,7 +27,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type KiviCacheServiceClient interface {
-	Put(ctx context.Context, in *KeyValue, opts ...grpc.CallOption) (*KeyValue, error)
+	Put(ctx context.Context, in *KeyValue, opts ...grpc.CallOption) (*PutResponse, error)
 	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*KeyValue, error)
 }
 
@@ -39,9 +39,9 @@ func NewKiviCacheServiceClient(cc grpc.ClientConnInterface) KiviCacheServiceClie
 	return &kiviCacheServiceClient{cc}
 }
 
-func (c *kiviCacheServiceClient) Put(ctx context.Context, in *KeyValue, opts ...grpc.CallOption) (*KeyValue, error) {
+func (c *kiviCacheServiceClient) Put(ctx context.Context, in *KeyValue, opts ...grpc.CallOption) (*PutResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(KeyValue)
+	out := new(PutResponse)
 	err := c.cc.Invoke(ctx, KiviCacheService_Put_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func (c *kiviCacheServiceClient) Get(ctx context.Context, in *GetRequest, opts .
 // All implementations must embed UnimplementedKiviCacheServiceServer
 // for forward compatibility.
 type KiviCacheServiceServer interface {
-	Put(context.Context, *KeyValue) (*KeyValue, error)
+	Put(context.Context, *KeyValue) (*PutResponse, error)
 	Get(context.Context, *GetRequest) (*KeyValue, error)
 	mustEmbedUnimplementedKiviCacheServiceServer()
 }
@@ -75,7 +75,7 @@ type KiviCacheServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedKiviCacheServiceServer struct{}
 
-func (UnimplementedKiviCacheServiceServer) Put(context.Context, *KeyValue) (*KeyValue, error) {
+func (UnimplementedKiviCacheServiceServer) Put(context.Context, *KeyValue) (*PutResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Put not implemented")
 }
 func (UnimplementedKiviCacheServiceServer) Get(context.Context, *GetRequest) (*KeyValue, error) {

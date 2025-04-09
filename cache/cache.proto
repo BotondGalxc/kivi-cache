@@ -6,7 +6,7 @@ option go_package = "kivicache/cache";
 package cache;
 
 service KiviCacheService {
-  rpc Put(KeyValue) returns (KeyValue) {}
+  rpc Put(KeyValue) returns (PutResponse) {}
   rpc Get(GetRequest) returns (KeyValue) {}
 }
 
