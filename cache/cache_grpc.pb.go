@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	KiviCacheService_Put_FullMethodName = "/cache.KiviCacheService/Put"
-	KiviCacheService_Get_FullMethodName = "/cache.KiviCacheService/Get"
+	KiviCacheService_Put_FullMethodName    = "/cache.KiviCacheService/Put"
+	KiviCacheService_Get_FullMethodName    = "/cache.KiviCacheService/Get"
+	KiviCacheService_Delete_FullMethodName = "/cache.KiviCacheService/Delete"
 )
 
 // KiviCacheServiceClient is the client API for KiviCacheService service.
@@ -29,6 +30,7 @@ const (
 type KiviCacheServiceClient interface {
 	Put(ctx context.Context, in *KeyValue, opts ...grpc.CallOption) (*PutResponse, error)
 	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*KeyValue, error)
+	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
 }
 
 type kiviCacheServiceClient struct {
@@ -59,12 +61,23 @@ func (c *kiviCacheServiceClient) Get(ctx context.Context, in *GetRequest, opts .
 	return out, nil
 }
 
+func (c *kiviCacheServiceClient) Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteResponse)
+	err := c.cc.Invoke(ctx, KiviCacheService_Delete_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // KiviCacheServiceServer is the server API for KiviCacheService service.
 // All implementations must embed UnimplementedKiviCacheServiceServer
 // for forward compatibility.
 type KiviCacheServiceServer interface {
 	Put(context.Context, *KeyValue) (*PutResponse, error)
 	Get(context.Context, *GetRequest) (*KeyValue, error)
+	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
 	mustEmbedUnimplementedKiviCacheServiceServer()
 }
 
@@ -80,6 +93,9 @@ func (UnimplementedKiviCacheServiceServer) Put(context.Context, *KeyValue) (*Put
 }
 func (UnimplementedKiviCacheServiceServer) Get(context.Context, *GetRequest) (*KeyValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedKiviCacheServiceServer) Delete(context.Context, *DeleteRequest) (*DeleteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 func (UnimplementedKiviCacheServiceServer) mustEmbedUnimplementedKiviCacheServiceServer() {}
 func (UnimplementedKiviCacheServiceServer) testEmbeddedByValue()                          {}
@@ -138,6 +154,24 @@ func _KiviCacheService_Get_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _KiviCacheService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KiviCacheServiceServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KiviCacheService_Delete_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KiviCacheServiceServer).Delete(ctx, req.(*DeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // KiviCacheService_ServiceDesc is the grpc.ServiceDesc for KiviCacheService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +186,10 @@ var KiviCacheService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Get",
 			Handler:    _KiviCacheService_Get_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _KiviCacheService_Delete_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

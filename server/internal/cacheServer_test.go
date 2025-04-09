@@ -57,4 +57,21 @@ func TestCacheServer(t *testing.T) {
 		}
 	})
 
+	t.Run("delete item", func(t *testing.T) {
+		key := "deleteme"
+		srv := NewCacheServerFromMap(map[string]string{key: "obsolete"})
+
+		srv.Delete(context.Background(), &cache.DeleteRequest{Key: key})
+
+		response, err := srv.Get(context.Background(), &cache.GetRequest{Key: key})
+
+		if response != nil {
+			t.Errorf("Expected no item, got response with %s:%s", response.Key, response.Value)
+		}
+
+		if err == nil {
+			t.Errorf("Expected error because of nonexistent item")
+		}
+	})
+
 }

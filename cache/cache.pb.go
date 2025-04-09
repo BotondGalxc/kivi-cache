@@ -169,6 +169,102 @@ func (x *PutResponse) GetError() string {
 	return ""
 }
 
+type DeleteRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteRequest) Reset() {
+	*x = DeleteRequest{}
+	mi := &file_cache_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteRequest) ProtoMessage() {}
+
+func (x *DeleteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_cache_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteRequest.ProtoReflect.Descriptor instead.
+func (*DeleteRequest) Descriptor() ([]byte, []int) {
+	return file_cache_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *DeleteRequest) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+type DeleteResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Result        string                 `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
+	Error         string                 `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteResponse) Reset() {
+	*x = DeleteResponse{}
+	mi := &file_cache_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteResponse) ProtoMessage() {}
+
+func (x *DeleteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_cache_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteResponse.ProtoReflect.Descriptor instead.
+func (*DeleteResponse) Descriptor() ([]byte, []int) {
+	return file_cache_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *DeleteResponse) GetResult() string {
+	if x != nil {
+		return x.Result
+	}
+	return ""
+}
+
+func (x *DeleteResponse) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
 var File_cache_proto protoreflect.FileDescriptor
 
 const file_cache_proto_rawDesc = "" +
@@ -182,10 +278,16 @@ const file_cache_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value\";\n" +
 	"\vPutResponse\x12\x16\n" +
 	"\x06result\x18\x01 \x01(\tR\x06result\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error2m\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\"!\n" +
+	"\rDeleteRequest\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\">\n" +
+	"\x0eDeleteResponse\x12\x16\n" +
+	"\x06result\x18\x01 \x01(\tR\x06result\x12\x14\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error2\xa6\x01\n" +
 	"\x10KiviCacheService\x12,\n" +
 	"\x03Put\x12\x0f.cache.KeyValue\x1a\x12.cache.PutResponse\"\x00\x12+\n" +
-	"\x03Get\x12\x11.cache.GetRequest\x1a\x0f.cache.KeyValue\"\x00B\x11Z\x0fkivicache/cacheb\x06proto3"
+	"\x03Get\x12\x11.cache.GetRequest\x1a\x0f.cache.KeyValue\"\x00\x127\n" +
+	"\x06Delete\x12\x14.cache.DeleteRequest\x1a\x15.cache.DeleteResponse\"\x00B\x11Z\x0fkivicache/cacheb\x06proto3"
 
 var (
 	file_cache_proto_rawDescOnce sync.Once
@@ -199,19 +301,23 @@ func file_cache_proto_rawDescGZIP() []byte {
 	return file_cache_proto_rawDescData
 }
 
-var file_cache_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_cache_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_cache_proto_goTypes = []any{
-	(*GetRequest)(nil),  // 0: cache.GetRequest
-	(*KeyValue)(nil),    // 1: cache.KeyValue
-	(*PutResponse)(nil), // 2: cache.PutResponse
+	(*GetRequest)(nil),     // 0: cache.GetRequest
+	(*KeyValue)(nil),       // 1: cache.KeyValue
+	(*PutResponse)(nil),    // 2: cache.PutResponse
+	(*DeleteRequest)(nil),  // 3: cache.DeleteRequest
+	(*DeleteResponse)(nil), // 4: cache.DeleteResponse
 }
 var file_cache_proto_depIdxs = []int32{
 	1, // 0: cache.KiviCacheService.Put:input_type -> cache.KeyValue
 	0, // 1: cache.KiviCacheService.Get:input_type -> cache.GetRequest
-	2, // 2: cache.KiviCacheService.Put:output_type -> cache.PutResponse
-	1, // 3: cache.KiviCacheService.Get:output_type -> cache.KeyValue
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
+	3, // 2: cache.KiviCacheService.Delete:input_type -> cache.DeleteRequest
+	2, // 3: cache.KiviCacheService.Put:output_type -> cache.PutResponse
+	1, // 4: cache.KiviCacheService.Get:output_type -> cache.KeyValue
+	4, // 5: cache.KiviCacheService.Delete:output_type -> cache.DeleteResponse
+	3, // [3:6] is the sub-list for method output_type
+	0, // [0:3] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -228,7 +334,7 @@ func file_cache_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_cache_proto_rawDesc), len(file_cache_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

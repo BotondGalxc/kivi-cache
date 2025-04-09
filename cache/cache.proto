@@ -8,6 +8,7 @@ package cache;
 service KiviCacheService {
   rpc Put(KeyValue) returns (PutResponse) {}
   rpc Get(GetRequest) returns (KeyValue) {}
+  rpc Delete(DeleteRequest) returns (DeleteResponse) {}
 }
 
 message GetRequest {
@@ -20,6 +21,15 @@ message KeyValue {
 }
 
 message PutResponse {
+    string result = 1;
+    string error = 2;
+}
+
+message DeleteRequest {
+    string key = 1;
+}
+
+message DeleteResponse {
     string result = 1;
     string error = 2;
 }
