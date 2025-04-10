@@ -18,7 +18,10 @@ var deleteCmd = &cobra.Command{
 	Long:  `Remove value from cache addressed by a given key`,
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		client, err := internal.NewClient("localhost", "5001", insecure.NewCredentials())
+		host, _ := cmd.Flags().GetString("host")
+		port, _ := cmd.Flags().GetString("port")
+
+		client, err := internal.NewClient(host, port, insecure.NewCredentials())
 		if err != nil {
 			fmt.Printf("Cannot create client to localhost:5001: %v", err)
 		} else {

@@ -9,6 +9,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	host string
+	port string
+)
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "kivi",
@@ -34,6 +39,8 @@ func init() {
 	// will be global for your application.
 
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.client.yaml)")
+	rootCmd.PersistentFlags().StringVarP(&host, "host", "", "localhost", "host, where the server is located")
+	rootCmd.PersistentFlags().StringVarP(&port, "port", "p", "5001", "Target port of the server")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.

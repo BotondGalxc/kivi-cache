@@ -18,9 +18,12 @@ var getCmd = &cobra.Command{
 	Long:  `Retrieves the value for a key from a kivi-server`,
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		client, err := internal.NewClient("localhost", "5001", insecure.NewCredentials())
+		host, _ := cmd.Flags().GetString("host")
+		port, _ := cmd.Flags().GetString("port")
+
+		client, err := internal.NewClient(host, port, insecure.NewCredentials())
 		if err != nil {
-			fmt.Printf("Cannot create client to localhost:5001: %v", err)
+			fmt.Printf("Cannot create client to %s:%s: %v", host, port, err)
 		} else {
 			kv := client.Get(args[0])
 			fmt.Printf("Received key %s=%s", kv.Key, kv.Value)
