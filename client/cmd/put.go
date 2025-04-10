@@ -20,12 +20,13 @@ var putCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		host, _ := cmd.Flags().GetString("host")
 		port, _ := cmd.Flags().GetString("port")
+		expire, _ := cmd.Flags().GetInt32("expire")
 
 		client, err := internal.NewClient(host, port, insecure.NewCredentials())
 		if err != nil {
 			fmt.Printf("Cannot create client to localhost:5001: %v", err)
 		} else {
-			response, err := client.Put(args[0], args[1])
+			response, err := client.Put(args[0], args[1], expire)
 			if err != nil {
 				fmt.Println(err)
 			} else {
@@ -36,6 +37,8 @@ var putCmd = &cobra.Command{
 }
 
 func init() {
+	putCmd.Flags().Int32P("expire", "e", -1, "Let the entry expire after given seconds. -1 for no expiration.")
+
 	rootCmd.AddCommand(putCmd)
 
 	// Here you will define your flags and configuration settings.

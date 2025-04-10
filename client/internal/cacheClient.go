@@ -46,10 +46,10 @@ func (client *cacheClient) Get(key string) KeyValue {
 	return KeyValue{response.Key, response.Value}
 }
 
-func (client *cacheClient) Put(key string, value string) (string, error) {
+func (client *cacheClient) Put(key string, value string, expires int32) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	response, err := client.cacheServiceClient.Put(ctx, &cache.KeyValue{Key: key, Value: value})
+	response, err := client.cacheServiceClient.Put(ctx, &cache.PutRequest{Key: key, Value: value, ExpiresSec: expires})
 	if err != nil {
 		log.Fatalf("Error on Get: %v", err)
 		return "", err

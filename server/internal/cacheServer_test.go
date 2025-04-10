@@ -12,7 +12,7 @@ func TestCacheServer(t *testing.T) {
 		key := "test"
 		value := "123"
 
-		srv.Put(context.Background(), &cache.KeyValue{Key: key, Value: value})
+		srv.Put(context.Background(), &cache.PutRequest{Key: key, Value: value, ExpiresSec: -1})
 		result, _ := srv.Get(context.Background(), &cache.GetRequest{Key: key})
 		got := result.Value
 		want := value
@@ -27,7 +27,7 @@ func TestCacheServer(t *testing.T) {
 		key := ""
 		value := "123"
 
-		_, err := srv.Put(context.Background(), &cache.KeyValue{Key: key, Value: value})
+		_, err := srv.Put(context.Background(), &cache.PutRequest{Key: key, Value: value, ExpiresSec: -1})
 
 		if err == nil {
 			t.Errorf("want err not to be nil")
@@ -39,7 +39,7 @@ func TestCacheServer(t *testing.T) {
 		key := "test"
 		value := ""
 
-		_, err := srv.Put(context.Background(), &cache.KeyValue{Key: key, Value: value})
+		_, err := srv.Put(context.Background(), &cache.PutRequest{Key: key, Value: value, ExpiresSec: -1})
 
 		if err == nil {
 			t.Errorf("want err not to be nil")

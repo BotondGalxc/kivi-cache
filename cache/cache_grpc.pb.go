@@ -28,7 +28,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type KiviCacheServiceClient interface {
-	Put(ctx context.Context, in *KeyValue, opts ...grpc.CallOption) (*PutResponse, error)
+	Put(ctx context.Context, in *PutRequest, opts ...grpc.CallOption) (*PutResponse, error)
 	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*KeyValue, error)
 	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
 }
@@ -41,7 +41,7 @@ func NewKiviCacheServiceClient(cc grpc.ClientConnInterface) KiviCacheServiceClie
 	return &kiviCacheServiceClient{cc}
 }
 
-func (c *kiviCacheServiceClient) Put(ctx context.Context, in *KeyValue, opts ...grpc.CallOption) (*PutResponse, error) {
+func (c *kiviCacheServiceClient) Put(ctx context.Context, in *PutRequest, opts ...grpc.CallOption) (*PutResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(PutResponse)
 	err := c.cc.Invoke(ctx, KiviCacheService_Put_FullMethodName, in, out, cOpts...)
@@ -75,7 +75,7 @@ func (c *kiviCacheServiceClient) Delete(ctx context.Context, in *DeleteRequest, 
 // All implementations must embed UnimplementedKiviCacheServiceServer
 // for forward compatibility.
 type KiviCacheServiceServer interface {
-	Put(context.Context, *KeyValue) (*PutResponse, error)
+	Put(context.Context, *PutRequest) (*PutResponse, error)
 	Get(context.Context, *GetRequest) (*KeyValue, error)
 	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
 	mustEmbedUnimplementedKiviCacheServiceServer()
@@ -88,7 +88,7 @@ type KiviCacheServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedKiviCacheServiceServer struct{}
 
-func (UnimplementedKiviCacheServiceServer) Put(context.Context, *KeyValue) (*PutResponse, error) {
+func (UnimplementedKiviCacheServiceServer) Put(context.Context, *PutRequest) (*PutResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Put not implemented")
 }
 func (UnimplementedKiviCacheServiceServer) Get(context.Context, *GetRequest) (*KeyValue, error) {
@@ -119,7 +119,7 @@ func RegisterKiviCacheServiceServer(s grpc.ServiceRegistrar, srv KiviCacheServic
 }
 
 func _KiviCacheService_Put_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(KeyValue)
+	in := new(PutRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -131,7 +131,7 @@ func _KiviCacheService_Put_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: KiviCacheService_Put_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(KiviCacheServiceServer).Put(ctx, req.(*KeyValue))
+		return srv.(KiviCacheServiceServer).Put(ctx, req.(*PutRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
