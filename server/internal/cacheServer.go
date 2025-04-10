@@ -26,7 +26,7 @@ func NewCacheServerFromMap(items map[string]string) *cacheServer {
 
 func (server *cacheServer) Get(ctx context.Context, request *cache.GetRequest) (*cache.KeyValue, error) {
 
-	log.Printf("Received request for value %s", request.Key)
+	log.Printf("Received request for key %s", request.Key)
 
 	value, ok := server.values[request.Key]
 	if !ok {
@@ -49,10 +49,13 @@ func (server *cacheServer) Put(ctx context.Context, request *cache.KeyValue) (*c
 	}
 
 	server.values[request.Key] = request.Value
+
+	log.Printf("Add value for key %s", request.Key)
 	return &cache.PutResponse{Result: "Value Stored for Key " + request.Key, Error: ""}, nil
 }
 
 func (server *cacheServer) Delete(ctx context.Context, request *cache.DeleteRequest) (*cache.DeleteResponse, error) {
 	delete(server.values, request.Key)
+	log.Printf("Deleted key %s", request.Key)
 	return &cache.DeleteResponse{Result: "deleted item" + request.Key}, nil
 }
