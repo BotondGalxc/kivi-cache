@@ -57,5 +57,5 @@ func (server *cacheServer) Put(ctx context.Context, request *cache.KeyValue) (*c
 func (server *cacheServer) Delete(ctx context.Context, request *cache.DeleteRequest) (*cache.DeleteResponse, error) {
 	delete(server.values, request.Key)
 	log.Printf("Deleted key %s", request.Key)
-	return &cache.DeleteResponse{Result: "deleted item" + request.Key}, nil
+	return &cache.DeleteResponse{Result: "deleted item " + request.Key}, nil
 }

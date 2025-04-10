@@ -54,7 +54,16 @@ func (client *cacheClient) Put(key string, value string) (string, error) {
 		log.Fatalf("Error on Get: %v", err)
 		return "", err
 	}
-
 	return response.Result, nil
+}
 
+func (client *cacheClient) Delete(key string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	response, err := client.cacheServiceClient.Delete(ctx, &cache.DeleteRequest{Key: key})
+	if err != nil {
+		log.Fatalf("Error on deleting %v", err)
+		return "", err
+	}
+	return response.Result, nil
 }
