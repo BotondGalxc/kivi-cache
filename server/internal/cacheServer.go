@@ -8,6 +8,14 @@ import (
 	"time"
 )
 
+const cleanupMiliseconds = 200
+
+func doEvery(d time.Duration, f func()) {
+	for range time.Tick(d) {
+		f()
+	}
+}
+
 type cacheServer struct {
 	cache.UnimplementedKiviCacheServiceServer
 	values     map[string]string
@@ -18,6 +26,7 @@ func NewCacheServer() *cacheServer {
 	server := cacheServer{}
 	server.values = make(map[string]string)
 	server.expiration = make(map[string]time.Time)
+	go doEvery(cleanupMiliseconds*time.Millisecond, server.DeleteExpired)
 	return &server
 }
 
@@ -65,4 +74,14 @@ func (server *cacheServer) Delete(ctx context.Context, request *cache.DeleteRequ
 	delete(server.expiration, request.Key)
 	log.Printf("Deleted key %s", request.Key)
 	return &cache.DeleteResponse{Result: "deleted item " + request.Key}, nil
+}
+
+func (server *cacheServer) DeleteExpired() {
+	for key, exptime := range server.expiration {
+		if exptime.Before(time.Now()) {
+			delete(server.values, key)
+			delete(server.expiration, key)
+			log.Printf("Deleted expired key %s", key)
+		}
+	}
 }

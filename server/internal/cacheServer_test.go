@@ -4,6 +4,7 @@ import (
 	"context"
 	"kivi-cache/cache"
 	"testing"
+	"time"
 )
 
 func TestCacheServer(t *testing.T) {
@@ -62,6 +63,26 @@ func TestCacheServer(t *testing.T) {
 		srv := NewCacheServerFromMap(map[string]string{key: "obsolete"})
 
 		srv.Delete(context.Background(), &cache.DeleteRequest{Key: key})
+
+		response, err := srv.Get(context.Background(), &cache.GetRequest{Key: key})
+
+		if response != nil {
+			t.Errorf("Expected no item, got response with %s:%s", response.Key, response.Value)
+		}
+
+		if err == nil {
+			t.Errorf("Expected error because of nonexistent item")
+		}
+	})
+
+	t.Run("items expire", func(t *testing.T) {
+		srv := NewCacheServer()
+		key := "test"
+		value := "123"
+
+		srv.Put(context.Background(), &cache.PutRequest{Key: key, Value: value, ExpiresSec: 1})
+
+		time.Sleep(time.Second * 2)
 
 		response, err := srv.Get(context.Background(), &cache.GetRequest{Key: key})
 
