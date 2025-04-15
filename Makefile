@@ -1,3 +1,5 @@
+LINKMODE := -linkmode external -extldflags '-static -s -w'
+
 proto: 
 	protoc --go_out=. \
 		--go_opt=paths=source_relative \
@@ -8,9 +10,13 @@ test-server:
 	go test kivi-cache/server/internal
 
 build-server:
-	go build -o bin/kivi-server server/main.go
+	go build -o bin/kivi-server \
+		-ldflags "$(LINKMODE)" \
+		server/main.go
 
 build-client:
-	go build -o bin/kivi-client client/main.go
+	go build -o bin/kivi-client \
+		-ldflags "$(LINKMODE)" \
+		client/main.go
 
 build: proto test-server build-server build-client
