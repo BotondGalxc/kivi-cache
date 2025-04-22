@@ -5,7 +5,6 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  workflow_dispatch:
 
 jobs:
   build:
@@ -22,12 +21,11 @@ jobs:
     - name: Install Protoc
       uses: arduino/setup-protoc@v3
 
-      ## 
-    - name: Go gRPC Plugins
+    - name: Install go gRPC Plugins
       run: |
           go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
           go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
           export PATH="$PATH:$(go env GOPATH)/bin"
 
-    - name: Run check
+    - name: Run build
       run: make build
