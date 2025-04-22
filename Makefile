@@ -12,11 +12,13 @@ test-server:
 build-server:
 	go build -o bin/kivi-server \
 		-ldflags "$(LINKMODE)" \
+		-tags netgo \
 		server/main.go
 
 build-client:
 	go build -o bin/kivi-client \
 		-ldflags "$(LINKMODE)" \
+		-tags netgo \
 		client/main.go
 
 build: proto test-server build-server build-client
