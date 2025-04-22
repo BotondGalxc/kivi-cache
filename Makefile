@@ -1,5 +1,3 @@
-LINKMODE := -extldflags '-static -s -w'
-
 proto: 
 	protoc --go_out=. \
 		--go_opt=paths=source_relative \
@@ -11,13 +9,13 @@ test-server:
 
 build-server:
 	CGO_ENABLED=0 go build -o bin/kivi-server \
-		-ldflags "$(LINKMODE)" \
+		-ldflags "-w -s" \
 		-tags netgo \
 		server/main.go
 
 build-client:
 	CGO_ENABLED=0 go build -o bin/kivi-client \
-		-ldflags "$(LINKMODE)" \
+		-ldflags "-w -s" \
 		-tags netgo \
 		client/main.go
 
