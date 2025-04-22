@@ -1,4 +1,4 @@
-LINKMODE := -linkmode external -extldflags '-static -s -w'
+LINKMODE := -extldflags '-static -s -w'
 
 proto: 
 	protoc --go_out=. \
@@ -10,13 +10,13 @@ test-server:
 	go test kivi-cache/server/internal
 
 build-server:
-	go build -o bin/kivi-server \
+	CGO_ENABLED=0 go build -o bin/kivi-server \
 		-ldflags "$(LINKMODE)" \
 		-tags netgo \
 		server/main.go
 
 build-client:
-	go build -o bin/kivi-client \
+	CGO_ENABLED=0 go build -o bin/kivi-client \
 		-ldflags "$(LINKMODE)" \
 		-tags netgo \
 		client/main.go
