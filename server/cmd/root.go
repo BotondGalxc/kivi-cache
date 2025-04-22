@@ -18,8 +18,6 @@ import (
 
 const defaultPort = "5001"
 
-func initConfig()
-
 func getPort(cmd *cobra.Command) string {
 
 	configPath, _ := cmd.Flags().GetString("config-path")
