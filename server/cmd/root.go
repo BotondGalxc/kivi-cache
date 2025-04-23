@@ -4,7 +4,6 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
 	"kivi-cache/cache"
 	"kivi-cache/server/internal"
 	"log"
@@ -16,13 +15,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
 var (
-	defaultPort = "5001"
-
 	cacheEntriesCount = prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace: "kivicache",
@@ -30,36 +26,6 @@ var (
 			Help:      "Indicates, how much keys are recoreded in the cache",
 		})
 )
-
-func getPort(cmd *cobra.Command) string {
-
-	configPath, _ := cmd.Flags().GetString("config-path")
-
-	// Setup viper
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-
-	viper.AddConfigPath(configPath)
-	viper.SetDefault("port", defaultPort)
-
-	viper.ReadInConfig()
-
-	// Get config/env
-	port := viper.GetString("port")
-
-	// Flags can overwrite conf and env
-	portFromFlag, err := cmd.Flags().GetString("port")
-	if err != nil {
-		fmt.Println("Get port from flag")
-		port = portFromFlag
-	}
-
-	if port[0] != ':' {
-		return ":" + port
-	}
-
-	return port
-}
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -74,14 +40,17 @@ to quickly create a Cobra application.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
-		port := getPort(cmd)
-		listener, err := net.Listen("tcp", port)
+
+		conf := NewServerConfiguration(cmd)
+		listener, err := net.Listen("tcp", conf.serverPort)
 		if err != nil {
-			log.Fatalf("failed to listen on port %s: %v", port, err)
+			log.Fatalf("failed to listen on port %s: %v", conf.serverPort, err)
 		}
 
 		http.Handle("/metrics", promhttp.Handler())
-		go http.ListenAndServe(":2112", nil)
+		go http.ListenAndServe(conf.metricsPort, nil)
+
+		log.Printf("Metrics available at [::]%v/metrics", conf.metricsPort)
 
 		cacheServer := internal.NewCacheServer()
 
@@ -122,7 +91,7 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().StringP("port", "p", defaultPort, "The gRPC endpoint will be exposed on this port")
+	rootCmd.Flags().StringP("port", "p", defaultServerPort, "The gRPC endpoint will be exposed on this port")
 	rootCmd.Flags().String("config-path", ".", "The gRPC endpoint will be exposed on this port")
 
 }

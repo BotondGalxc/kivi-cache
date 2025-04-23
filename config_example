@@ -1,0 +1,5 @@
+server:
+    port: 5001
+
+metrics:
+    port: 2112
