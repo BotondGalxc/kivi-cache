@@ -23,6 +23,19 @@ func TestCacheServer(t *testing.T) {
 		}
 	})
 
+	t.Run("count items", func(t *testing.T) {
+		srv := NewCacheServer()
+		srv.Put(context.Background(), &cache.PutRequest{Key: "test1", Value: "123", ExpiresSec: -1})
+		srv.Put(context.Background(), &cache.PutRequest{Key: "test2", Value: "456", ExpiresSec: -1})
+
+		got := srv.Count()
+		want := 2
+
+		if got != want {
+			t.Errorf("got %d want %d", got, want)
+		}
+	})
+
 	t.Run("get error on putting empty key", func(t *testing.T) {
 		srv := NewCacheServer()
 		key := ""

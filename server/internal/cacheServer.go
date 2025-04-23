@@ -36,6 +36,10 @@ func NewCacheServerFromMap(items map[string]string) *cacheServer {
 	return server
 }
 
+func (server *cacheServer) Count() int {
+	return len(server.values)
+}
+
 func (server *cacheServer) Get(ctx context.Context, request *cache.GetRequest) (*cache.KeyValue, error) {
 
 	log.Printf("Received request for key %s", request.Key)

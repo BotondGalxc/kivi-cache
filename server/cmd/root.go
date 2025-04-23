@@ -9,14 +9,27 @@ import (
 	"kivi-cache/server/internal"
 	"log"
 	"net"
+	"net/http"
 	"os"
+	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
-const defaultPort = "5001"
+var (
+	defaultPort = "5001"
+
+	cacheEntriesCount = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Namespace: "kivicache",
+			Name:      "entries_count",
+			Help:      "Indicates, how much keys are recoreded in the cache",
+		})
+)
 
 func getPort(cmd *cobra.Command) string {
 
@@ -67,8 +80,22 @@ to quickly create a Cobra application.`,
 			log.Fatalf("failed to listen on port %s: %v", port, err)
 		}
 
+		http.Handle("/metrics", promhttp.Handler())
+		go http.ListenAndServe(":2112", nil)
+
+		cacheServer := internal.NewCacheServer()
+
+		prometheus.MustRegister(cacheEntriesCount)
+		go func() {
+			for {
+				cacheEntriesCount.Set(float64(cacheServer.Count()))
+
+				time.Sleep(time.Second)
+			}
+		}()
+
 		grpcSrv := grpc.NewServer()
-		cache.RegisterKiviCacheServiceServer(grpcSrv, internal.NewCacheServer())
+		cache.RegisterKiviCacheServiceServer(grpcSrv, cacheServer)
 		log.Printf("gRPC server listening at %v", listener.Addr())
 
 		if err := grpcSrv.Serve(listener); err != nil {
