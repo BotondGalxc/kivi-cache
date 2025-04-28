@@ -45,6 +45,14 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		conf := NewServerConfiguration(cmd)
+
+		opts := &slog.HandlerOptions{
+			Level: conf.logLevel,
+		}
+		logger := slog.New(slog.NewJSONHandler(os.Stdout, opts))
+		logger.Debug("Set Default Log Level", "level", opts.Level)
+		slog.SetDefault(logger)
+
 		listener, err := net.Listen("tcp", conf.serverPort)
 		if err != nil {
 			logger.Error(fmt.Sprintf("failed to listen on port %s: %v", conf.serverPort, err))
@@ -55,7 +63,7 @@ to quickly create a Cobra application.`,
 
 		logger.Info(fmt.Sprintf("Metrics available at [::]%v/metrics", conf.metricsPort))
 
-		cacheServer := internal.NewCacheServer(logger)
+		cacheServer := internal.NewCacheServer()
 
 		prometheus.MustRegister(cacheEntriesCount)
 		go func() {
@@ -95,6 +103,7 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().StringP("port", "p", defaultServerPort, "The gRPC endpoint will be exposed on this port")
+	rootCmd.Flags().String("log-level", "INFO", "The lowest level of logging messages, that the server reports")
 	rootCmd.Flags().String("config-path", ".", "The gRPC endpoint will be exposed on this port")
 
 }

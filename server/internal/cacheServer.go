@@ -20,19 +20,18 @@ type cacheServer struct {
 	cache.UnimplementedKiviCacheServiceServer
 	values     map[string]string
 	expiration map[string]time.Time
-	log        *slog.Logger
 }
 
-func NewCacheServer(logger *slog.Logger) *cacheServer {
-	server := cacheServer{log: logger}
+func NewCacheServer() *cacheServer {
+	server := cacheServer{}
 	server.values = make(map[string]string)
 	server.expiration = make(map[string]time.Time)
 	go doEvery(cleanupMiliseconds*time.Millisecond, server.DeleteExpired)
 	return &server
 }
 
-func NewCacheServerFromMap(items map[string]string, logger *slog.Logger) *cacheServer {
-	server := NewCacheServer(logger)
+func NewCacheServerFromMap(items map[string]string) *cacheServer {
+	server := NewCacheServer()
 	server.values = items
 	return server
 }
@@ -43,7 +42,7 @@ func (server *cacheServer) Count() int {
 
 func (server *cacheServer) Get(ctx context.Context, request *cache.GetRequest) (*cache.KeyValue, error) {
 
-	server.log.Info("Received request for key %s", request.Key, nil)
+	slog.Info("Received request for key %s", request.Key, nil)
 
 	value, ok := server.values[request.Key]
 	if !ok {
@@ -66,7 +65,7 @@ func (server *cacheServer) Put(ctx context.Context, request *cache.PutRequest) (
 	}
 
 	server.values[request.Key] = request.Value
-	server.log.Info("Add value for key", "key", request.Key)
+	slog.Info("Add value for key", "key", request.Key)
 	if request.ExpiresSec > 0 {
 		server.expiration[request.Key] = time.Now().Add(time.Second * time.Duration(request.ExpiresSec))
 	}
@@ -77,7 +76,7 @@ func (server *cacheServer) Put(ctx context.Context, request *cache.PutRequest) (
 func (server *cacheServer) Delete(ctx context.Context, request *cache.DeleteRequest) (*cache.DeleteResponse, error) {
 	delete(server.values, request.Key)
 	delete(server.expiration, request.Key)
-	server.log.Info("Deleted key", "key", request.Key)
+	slog.Info("Deleted key", "key", request.Key)
 	return &cache.DeleteResponse{Result: "deleted item " + request.Key}, nil
 }
 
@@ -86,7 +85,7 @@ func (server *cacheServer) DeleteExpired() {
 		if exptime.Before(time.Now()) {
 			delete(server.values, key)
 			delete(server.expiration, key)
-			server.log.Info("Deleted expired key", "key", key)
+			slog.Info("Deleted expired key", "key", key)
 		}
 	}
 }

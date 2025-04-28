@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"log/slog"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -8,11 +10,13 @@ import (
 var (
 	defaultServerPort  = "5001"
 	defaultMetricsPort = "2112"
+	defaultLogLevel    = slog.LevelInfo
 )
 
 type ServerConfiguration struct {
 	serverPort  string
 	metricsPort string
+	logLevel    slog.Leveler
 }
 
 func NewServerConfiguration(ccmd *cobra.Command) ServerConfiguration {
@@ -21,6 +25,7 @@ func NewServerConfiguration(ccmd *cobra.Command) ServerConfiguration {
 	return ServerConfiguration{
 		serverPort:  getServerPort(ccmd),
 		metricsPort: getMetricsPort(),
+		logLevel:    getDefaultLogLevel(ccmd),
 	}
 }
 
@@ -44,9 +49,8 @@ func getServerPort(cmd *cobra.Command) string {
 	port := viper.GetString("server.port")
 
 	// Flags can overwrite conf and env
-	portFromFlag, err := cmd.Flags().GetString("port")
-	if err != nil {
-		logger.Debug("Get port from flag")
+	portFromFlag, _ := cmd.Flags().GetString("port")
+	if cmd.Flags().Changed("port") {
 		port = portFromFlag
 	}
 
@@ -66,4 +70,28 @@ func getMetricsPort() string {
 	}
 
 	return port
+}
+
+func getDefaultLogLevel(cmd *cobra.Command) slog.Leveler {
+	value := viper.GetString("log.level")
+
+	valueFromFlag, _ := cmd.Flags().GetString("log-level")
+	if cmd.Flags().Changed("log-level") {
+		slog.Info("Use value from Flag")
+		value = valueFromFlag
+	}
+
+	switch value {
+	case "DEBUG":
+		return slog.LevelDebug
+	case "INFO":
+		return slog.LevelInfo
+	case "ERROR":
+		return slog.LevelError
+	case "WARN":
+		return slog.LevelWarn
+	default:
+		return defaultLogLevel
+	}
+
 }

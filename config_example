@@ -3,3 +3,7 @@ server:
 
 metrics:
     port: 2112
+
+log:
+    # Valid values: DEBUG INFO WARN ERROR
+    level: INFO
