@@ -3,13 +3,19 @@ package internal
 import (
 	"context"
 	"kivi-cache/cache"
+	"log/slog"
+	"os"
 	"testing"
 	"time"
 )
 
+var (
+	logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
+)
+
 func TestCacheServer(t *testing.T) {
 	t.Run("put and receive a value", func(t *testing.T) {
-		srv := NewCacheServer()
+		srv := NewCacheServer(logger)
 		key := "test"
 		value := "123"
 
@@ -24,7 +30,7 @@ func TestCacheServer(t *testing.T) {
 	})
 
 	t.Run("count items", func(t *testing.T) {
-		srv := NewCacheServer()
+		srv := NewCacheServer(logger)
 		srv.Put(context.Background(), &cache.PutRequest{Key: "test1", Value: "123", ExpiresSec: -1})
 		srv.Put(context.Background(), &cache.PutRequest{Key: "test2", Value: "456", ExpiresSec: -1})
 
@@ -37,7 +43,7 @@ func TestCacheServer(t *testing.T) {
 	})
 
 	t.Run("get error on putting empty key", func(t *testing.T) {
-		srv := NewCacheServer()
+		srv := NewCacheServer(logger)
 		key := ""
 		value := "123"
 
@@ -49,7 +55,7 @@ func TestCacheServer(t *testing.T) {
 	})
 
 	t.Run("get error on putting empty value", func(t *testing.T) {
-		srv := NewCacheServer()
+		srv := NewCacheServer(logger)
 		key := "test"
 		value := ""
 
@@ -61,7 +67,7 @@ func TestCacheServer(t *testing.T) {
 	})
 
 	t.Run("get error on receiving nonexistent key", func(t *testing.T) {
-		srv := NewCacheServer()
+		srv := NewCacheServer(logger)
 		key := "test"
 
 		_, err := srv.Get(context.Background(), &cache.GetRequest{Key: key})
@@ -73,7 +79,7 @@ func TestCacheServer(t *testing.T) {
 
 	t.Run("delete item", func(t *testing.T) {
 		key := "deleteme"
-		srv := NewCacheServerFromMap(map[string]string{key: "obsolete"})
+		srv := NewCacheServerFromMap(map[string]string{key: "obsolete"}, logger)
 
 		srv.Delete(context.Background(), &cache.DeleteRequest{Key: key})
 
@@ -89,7 +95,7 @@ func TestCacheServer(t *testing.T) {
 	})
 
 	t.Run("items expire", func(t *testing.T) {
-		srv := NewCacheServer()
+		srv := NewCacheServer(logger)
 		key := "test"
 		value := "123"
 

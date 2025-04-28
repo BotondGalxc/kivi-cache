@@ -4,9 +4,10 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"fmt"
 	"kivi-cache/cache"
 	"kivi-cache/server/internal"
-	"log"
+	"log/slog"
 	"net"
 	"net/http"
 	"os"
@@ -19,6 +20,8 @@ import (
 )
 
 var (
+	logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
+
 	cacheEntriesCount = prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Namespace: "kivicache",
@@ -44,15 +47,15 @@ to quickly create a Cobra application.`,
 		conf := NewServerConfiguration(cmd)
 		listener, err := net.Listen("tcp", conf.serverPort)
 		if err != nil {
-			log.Fatalf("failed to listen on port %s: %v", conf.serverPort, err)
+			logger.Error(fmt.Sprintf("failed to listen on port %s: %v", conf.serverPort, err))
 		}
 
 		http.Handle("/metrics", promhttp.Handler())
 		go http.ListenAndServe(conf.metricsPort, nil)
 
-		log.Printf("Metrics available at [::]%v/metrics", conf.metricsPort)
+		logger.Info(fmt.Sprintf("Metrics available at [::]%v/metrics", conf.metricsPort))
 
-		cacheServer := internal.NewCacheServer()
+		cacheServer := internal.NewCacheServer(logger)
 
 		prometheus.MustRegister(cacheEntriesCount)
 		go func() {
@@ -65,10 +68,10 @@ to quickly create a Cobra application.`,
 
 		grpcSrv := grpc.NewServer()
 		cache.RegisterKiviCacheServiceServer(grpcSrv, cacheServer)
-		log.Printf("gRPC server listening at %v", listener.Addr())
+		logger.Info(fmt.Sprintf("gRPC server listening at %v", listener.Addr()))
 
 		if err := grpcSrv.Serve(listener); err != nil {
-			log.Fatalf("Failed to serve %s", err)
+			logger.Error(fmt.Sprintf("Failed to serve gRPC: %s", err))
 		}
 	},
 }

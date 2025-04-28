@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -48,7 +46,7 @@ func getServerPort(cmd *cobra.Command) string {
 	// Flags can overwrite conf and env
 	portFromFlag, err := cmd.Flags().GetString("port")
 	if err != nil {
-		fmt.Println("Get port from flag")
+		logger.Debug("Get port from flag")
 		port = portFromFlag
 	}
 
