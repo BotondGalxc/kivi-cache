@@ -1,5 +1,6 @@
 import grpc from 'k6/net/grpc';
-import { check, sleep } from 'k6';
+import { check } from 'k6';
+import exec from 'k6/execution';
 
 const client = new grpc.Client();
 client.load(['definitions'], '../../cache/cache.proto');
@@ -25,19 +26,21 @@ export default () => {
 			timeout: '10s'
 		});
 
-    var key = makeid(2)
+    // Items don't get deleted and let tem expire
+    // we ensure, there are no duplicate keys for each run
+    var key = exec.vu.idInTest + "-" + makeid(5)
     var value = makeid(10)
 
     const putRequest = { key: key, value: value, expiresSec: 5 };
     const response = client.invoke('cache.KiviCacheService/Put', putRequest);
 
     check(response, {
-        'status is OK': (r) => r && r.status === grpc.StatusOK,
+        'Put status OK': (r) => r && r.status === grpc.StatusOK,
     });
 
     client.close();
 
-    for (let step = 0; step < 4; step++) {
+    for (let step = 0; step < 10; step++) {
         client.connect('localhost:5001', {
 			plaintext: true,
 			timeout: '10s'
@@ -46,7 +49,7 @@ export default () => {
         const response = client.invoke('cache.KiviCacheService/Get', getRequest);
 
         check(response, {
-            'status is OK': (r) => r && r.status === grpc.StatusOK,
+            'Get status OK': (r) => r && r.status === grpc.StatusOK && r.message.value === value,
         });
 
         client.close();
