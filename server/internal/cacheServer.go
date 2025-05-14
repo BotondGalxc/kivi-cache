@@ -16,23 +16,28 @@ func doEvery(d time.Duration, f func()) {
 	}
 }
 
+type cacheValue struct {
+	value      string
+	expiration *time.Time
+}
+
 type cacheServer struct {
 	cache.UnimplementedKiviCacheServiceServer
-	values     map[string]string
-	expiration map[string]time.Time
+	values map[string]cacheValue
 }
 
 func NewCacheServer() *cacheServer {
 	server := cacheServer{}
-	server.values = make(map[string]string)
-	server.expiration = make(map[string]time.Time)
+	server.values = make(map[string]cacheValue)
 	go doEvery(cleanupMiliseconds*time.Millisecond, server.DeleteExpired)
 	return &server
 }
 
 func NewCacheServerFromMap(items map[string]string) *cacheServer {
 	server := NewCacheServer()
-	server.values = items
+	for k, v := range items {
+		server.values[k] = cacheValue{v, nil}
+	}
 	return server
 }
 
@@ -50,7 +55,7 @@ func (server *cacheServer) Get(ctx context.Context, request *cache.GetRequest) (
 		return nil, errors.New(errMessage)
 	}
 
-	return &cache.KeyValue{Key: request.Key, Value: value}, nil
+	return &cache.KeyValue{Key: request.Key, Value: value.value}, nil
 }
 
 func (server *cacheServer) Put(ctx context.Context, request *cache.PutRequest) (*cache.PutResponse, error) {
@@ -64,28 +69,30 @@ func (server *cacheServer) Put(ctx context.Context, request *cache.PutRequest) (
 		return nil, errors.New(errMessage)
 	}
 
-	server.values[request.Key] = request.Value
-	slog.Info("Add value for key", "key", request.Key)
+	value := cacheValue{request.Value, nil}
 	if request.ExpiresSec > 0 {
-		server.expiration[request.Key] = time.Now().Add(time.Second * time.Duration(request.ExpiresSec))
+		time := time.Now().Add(time.Second * time.Duration(request.ExpiresSec))
+		value.expiration = &time
 	}
 
+	server.values[request.Key] = value
+	slog.Info("Add value for key", "key", request.Key)
 	return &cache.PutResponse{Result: "Value Stored for Key " + request.Key, Error: ""}, nil
 }
 
 func (server *cacheServer) Delete(ctx context.Context, request *cache.DeleteRequest) (*cache.DeleteResponse, error) {
 	delete(server.values, request.Key)
-	delete(server.expiration, request.Key)
 	slog.Info("Deleted key", "key", request.Key)
 	return &cache.DeleteResponse{Result: "deleted item " + request.Key}, nil
 }
 
 func (server *cacheServer) DeleteExpired() {
-	for key, exptime := range server.expiration {
-		if exptime.Before(time.Now()) {
-			delete(server.values, key)
-			delete(server.expiration, key)
-			slog.Info("Deleted expired key", "key", key)
+	for key, val := range server.values {
+		if val.expiration != nil {
+			if val.expiration.Before(time.Now()) {
+				delete(server.values, key)
+				slog.Info("Deleted expired key", "key", key)
+			}
 		}
 	}
 }
